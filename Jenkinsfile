@@ -1,26 +1,53 @@
 pipeline {
     agent any
+
+    environment {
+        NODE_HOME = tool name: 'NodeJS', type: 'NodeJS'
+        PATH = "${NODE_HOME}/bin:${env.PATH}"
+        FIREBASE_SERVICE_ACCOUNT = credentials('firebase-service-account')  // ชื่อที่ตั้งใน Jenkins
+    }
+
     stages {
-        stage('Clone') {
+        stage('Checkout') {
             steps {
-                echo "Cloning repo..."
-                checkout scm
+                git 'https://github.com/gtwndtl/jenkins.git'
             }
         }
+
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    sh 'npm install'
+                }
+            }
+        }
+
         stage('Build') {
             steps {
-                echo "Building project..."
+                script {
+                    sh 'npm run build'
+                }
             }
         }
-        stage('Test') {
+
+        stage('Deploy to Firebase') {
             steps {
-                echo "Running tests..."
+                script {
+                    // ใช้ Firebase Service Account Key เพื่อ login โดยไม่ต้องใช้ firebase login
+                    withCredentials([file(credentialsId: 'firebase-service-account', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                        sh 'firebase deploy --only hosting'
+                    }
+                }
             }
         }
-        stage('Deploy') {
-            steps {
-                echo "Deploying..."
-            }
+    }
+
+    post {
+        success {
+            echo 'Build and deploy successful!'
+        }
+        failure {
+            echo 'Build or deploy failed.'
         }
     }
 }
