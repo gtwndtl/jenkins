@@ -2,9 +2,8 @@ pipeline {
     agent any
 
     environment {
-        NODE_HOME = tool name: 'NodeJS', type: 'NodeJS'
+        NODE_HOME = tool name: 'NodeJS', type: 'NodeJS'  // ชื่อต้องตรงกับที่ตั้งใน Global Tool Configuration
         PATH = "${NODE_HOME}/bin:${env.PATH}"
-        FIREBASE_SERVICE_ACCOUNT = credentials('firebase-service-account')  // ชื่อที่ตั้งใน Jenkins
     }
 
     stages {
@@ -33,7 +32,6 @@ pipeline {
         stage('Deploy to Firebase') {
             steps {
                 script {
-                    // ใช้ Firebase Service Account Key เพื่อ login โดยไม่ต้องใช้ firebase login
                     withCredentials([file(credentialsId: 'firebase-service-account', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                         sh 'firebase deploy --only hosting'
                     }
