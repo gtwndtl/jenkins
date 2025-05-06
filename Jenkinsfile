@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NODE_HOME = tool name: 'NodeJS', type: 'NodeJS'  // ชื่อต้องตรงกับที่ตั้งใน Global Tool Configuration
+        NODE_HOME = tool name: 'NodeJS', type: 'NodeJS'  // ใช้ชื่อที่ตั้งใน Global Tool Configuration
         PATH = "${NODE_HOME}/bin:${env.PATH}"
     }
 
